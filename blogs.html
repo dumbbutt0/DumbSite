@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Blog Viewer</title>
   <link rel="stylesheet" href="./style.css" />
+
+  <!-- Markdown parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- XSS sanitizer -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
 </head>
 <body>
 
@@ -18,15 +23,11 @@
   </header>
 
   <section>
-    <h2>📝 Blog Post Viewer</h2>
-    
-    <label for="blogSelector"><strong>Select a blog post:</strong></label>
+    <h2>Blog Viewer 📰</h2>
     <select id="blogSelector">
-      <option value="blogs/test.md">🧪 Test Post</option>
-      <option value="blogs/erc1271-vulnerability.md">🔐 ERC-1271 Signature Flaw</option>
-
-      <!-- You can add more options like this -->
-      <!-- <option value="blogs/erc1271-vulnerability.md">ERC-1271 Vulnerability</option> -->
+      <option value="blogs/test.md">📘 Blog Overview (README)</option>
+      <option value="blogs/erc1271-vulnerability.md">🧨 ERC-1271 Multisig Exploit</option>
+      <!-- Add more blog options as needed -->
     </select>
 
     <div id="blogContent" style="margin-top: 2rem;"></div>
@@ -40,9 +41,12 @@
       try {
         const res = await fetch(filename);
         const markdown = await res.text();
-        blogContent.innerHTML = marked.parse(markdown);
+        const dirtyHTML = marked.parse(markdown);
+        const cleanHTML = DOMPurify.sanitize(dirtyHTML);
+        blogContent.innerHTML = cleanHTML;
       } catch (err) {
         blogContent.innerHTML = "<p style='color:red;'>⚠️ Error loading blog post.</p>";
+        console.error('Blog load error:', err);
       }
     }
 
@@ -50,7 +54,7 @@
       loadBlog(blogSelector.value);
     });
 
-    // Load the initial blog post
+    // Load the default selection on page load
     loadBlog(blogSelector.value);
   </script>
 
